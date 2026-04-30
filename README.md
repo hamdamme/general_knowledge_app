@@ -1,2 +1,2 @@
-# general_knowledge_game
-General knowledge question game
+# general_knowledge_app
+General knowledge question application
