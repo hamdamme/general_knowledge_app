@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $passwrdRegErr = "Password is required.";
             $errorsReg = true;
         } else {
-            $passwrd = test_input($_POST["passwrd"]);
+            $passwrd = trim($_POST["passwrd"]);
             if (!preg_match("/^(?=.*[a-zA-Z]).{6,}$/", $passwrd)) {
                 $passwrdRegErr = "Password must be at least 6 characters long.";
                 $errorsReg = true;
@@ -57,7 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (!$errorsReg) {
             $sql = "INSERT INTO j_user (firstname, lastname, userID, passwrd, last_login) VALUES (?, ?, ?, ?, NOW())";
             if ($stmt = $db->prepare($sql)) {
-                $stmt->bind_param("ssss", $firstname, $lastname, $userID, $passwrd);
+                $passwordHash = password_hash($passwrd, PASSWORD_DEFAULT);
+                $stmt->bind_param("ssss", $firstname, $lastname, $userID, $passwordHash);
                 if ($stmt->execute()) {
                     $registrationSuccess = true; 
                 } else {
@@ -77,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $passwrdLoginErr = "Password is required.";
             $errorsLogin = true;
         } else {
-            $passwrd = test_input($_POST["passwrd"]);
+            $passwrd = trim($_POST["passwrd"]);
         }
         if (!$errorsLogin) {
             $sql = "SELECT id, passwrd, firstname FROM j_user WHERE userID = ?";
@@ -88,7 +89,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($stmt->num_rows == 1) {
                     $stmt->bind_result($id, $stored_password, $firstname);
                     $stmt->fetch();
-                    if ($passwrd == $stored_password) {
+                    $authenticated = password_verify($passwrd, $stored_password);
+                    $legacyPassword = !$authenticated && hash_equals((string) $stored_password, $passwrd);
+
+                    if ($authenticated || $legacyPassword) {
+                        if ($legacyPassword) {
+                            $passwordHash = password_hash($passwrd, PASSWORD_DEFAULT);
+                            $upgrade = $db->prepare("UPDATE j_user SET passwrd = ? WHERE id = ?");
+                            $upgrade->bind_param("si", $passwordHash, $id);
+                            $upgrade->execute();
+                            $upgrade->close();
+                        }
                         $_SESSION['userID'] = $id;
                         $_SESSION['username'] = $firstname;  // Store the username in the session
                         header('Location: mainboard.php');

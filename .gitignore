@@ -1,0 +1,9 @@
+# Local database credentials
+.env
+
+# macOS
+.DS_Store
+
+# Editor and runtime artifacts
+*.log
+/vendor/
