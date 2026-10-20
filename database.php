@@ -1,14 +1,38 @@
 <?php
 
-$database_host = 'huhuh.bcom';
-$database_user = 'okuihuh';
-$database_password = 'pasws';
-$database_name = 'usbame';
+$envFile = __DIR__ . '/.env';
+$localConfig = is_readable($envFile)
+    ? parse_ini_file($envFile, false, INI_SCANNER_RAW)
+    : [];
+
+if ($localConfig === false) {
+    throw new RuntimeException('Unable to read the local database configuration file.');
+}
+
+$readConfig = static function (string $key, ?string $default = null) use ($localConfig): ?string {
+    $environmentValue = getenv($key);
+    if ($environmentValue !== false) {
+        return $environmentValue;
+    }
+
+    return $localConfig[$key] ?? $default;
+};
+
+$database_host = $readConfig('DB_HOST', '127.0.0.1');
+$database_user = $readConfig('DB_USER', '');
+$database_password = $readConfig('DB_PASSWORD', '');
+$database_name = $readConfig('DB_NAME', 'general_knowledge');
+
+if ($database_user === '') {
+    throw new RuntimeException('Set DB_USER in .env or the PHP process environment.');
+}
 
 $db = new mysqli($database_host, $database_user, $database_password, $database_name);
 
 if ($db->connect_error) {
-    die("Database connection failed: " . $db->connect_error);
-} else {
-    // echo "Database connected successfully";
+    error_log('Database connection failed: ' . $db->connect_error);
+    http_response_code(500);
+    die('Database connection failed. Check the server logs and database configuration.');
 }
+
+$db->set_charset('utf8mb4');
