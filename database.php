@@ -27,12 +27,11 @@ if ($database_user === '') {
     throw new RuntimeException('Set DB_USER in .env or the PHP process environment.');
 }
 
-$db = new mysqli($database_host, $database_user, $database_password, $database_name);
-
-if ($db->connect_error) {
-    error_log('Database connection failed: ' . $db->connect_error);
+try {
+    $db = new mysqli($database_host, $database_user, $database_password, $database_name);
+    $db->set_charset('utf8mb4');
+} catch (mysqli_sql_exception $exception) {
+    error_log('Database connection failed: ' . $exception->getMessage());
     http_response_code(500);
     die('Database connection failed. Check the server logs and database configuration.');
 }
-
-$db->set_charset('utf8mb4');
