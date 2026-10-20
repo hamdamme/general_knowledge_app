@@ -1,6 +1,6 @@
 # General Knowledge Game
 
-A browser-based trivia game built with PHP, MySQL, JavaScript, and CSS. Players can register, sign in, choose a category, answer questions, and track their score.
+A browser-based trivia game built with PHP, MySQL, JavaScript, and CSS. Create an account, choose a question category, and earn points for correct answers.
 
 ## Features
 
@@ -17,7 +17,7 @@ A browser-based trivia game built with PHP, MySQL, JavaScript, and CSS. Players 
 - A PHP web server such as Apache, Nginx with PHP-FPM, or PHP's built-in server
 - `mysqlnd` enabled for MySQLi's `get_result()` method
 
-## Quick start
+## Run locally
 
 1. Clone the repository and enter the project directory:
 
@@ -39,7 +39,7 @@ A browser-based trivia game built with PHP, MySQL, JavaScript, and CSS. Players 
    cp .env.example .env
    ```
 
-   Edit `.env` and set the database host, name, username, and password. The application reads this file locally; production deployments should set the same `DB_*` values in the PHP process environment.
+   Edit `.env` with your MySQL connection details. For production, provide the same `DB_*` settings through the PHP process environment.
 
 4. Start the PHP development server:
 
@@ -51,17 +51,17 @@ A browser-based trivia game built with PHP, MySQL, JavaScript, and CSS. Players 
 
 ## Database
 
-The starter schema is in [database/schema.sql](database/schema.sql). It creates the tables used by the application and inserts a small set of example questions. Add categories, point values, and questions to the `j_category`, `j_value`, and `j_question` tables to customize the game.
+[database/schema.sql](database/schema.sql) creates the tables required by the application and inserts three example questions. Add rows to `j_category`, `j_value`, and `j_question` to expand the game.
 
 ## Configuration
 
-The application reads these settings from a local `.env` file or environment variables:
+The application reads these settings from `.env` during local development or from the PHP process environment in production:
 
 | Variable | Description | Default |
 | --- | --- | --- |
 | `DB_HOST` | MySQL server host | `127.0.0.1` |
-| `DB_USER` | MySQL username | none |
-| `DB_PASSWORD` | MySQL password | empty |
+| `DB_USER` | MySQL username | Required |
+| `DB_PASSWORD` | MySQL password | Empty string |
 | `DB_NAME` | Database name | `general_knowledge` |
 
 Never commit `.env` or production credentials.
@@ -84,8 +84,8 @@ Never commit `.env` or production credentials.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup and contribution expectations. Please report security issues privately; see [SECURITY.md](SECURITY.md).
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. To report a vulnerability, follow [SECURITY.md](SECURITY.md).
 
 ## License
 
-No license has been added yet. Until the project owner chooses one, standard copyright applies and reuse is not granted by this repository.
+This project is licensed under the [MIT License](LICENSE).
